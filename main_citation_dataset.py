@@ -161,7 +161,7 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
                 writer.add_scalar('test/_ari', epoch_test_evals[3], epoch)
                 writer.add_scalar('learning_rate', optimizer.param_groups[0]['lr'], epoch)
 
-                t.set_postfix(time=time.time()-start_, lr=optim.param_groups[0]['lr'],
+                t.set_postfix(time=time.time()-start_, lr=optimizer.param_groups[0]['lr'],
                                 train_loss=epoch_train_loss, val_loss=epoch_val_loss,
                                 train_acc=epoch_train_evals[0], val_acc=epoch_val_evals[0],
                                 test_acc=epoch_test_evals[0], train_f1=epoch_train_evals[1],
@@ -192,7 +192,7 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
                     break
 
                 # Stop training after params['max_time'] hours
-                if time.time() - start > params['max_time'] * 3600:
+                if time.time() - start_time > params['max_time'] * 3600:
                     print('-' * 89)
                     print("Max_time for training elapsed {:.2f} hours, so stopping".format(params['max_time']))
                     break

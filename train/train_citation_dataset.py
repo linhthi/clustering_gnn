@@ -24,9 +24,8 @@ def train_epoch(model, optimizer, device, graph):
     loss.backward()
     optimizer.step()
     epoch_loss = loss.detach().item()
-    print(y_pred.shape, labels.shape)
 
-    epoch_train_acc, epoch_train_f1, epoch_train_nmi, epoch_train_ari = evaluation(labels, torch.Tensor(y_pred))
+    epoch_train_acc, epoch_train_f1, epoch_train_nmi, epoch_train_ari = evaluation(labels.cpu().detach().numpy(), y_pred)
     evals = [epoch_train_acc, epoch_train_f1, epoch_train_nmi, epoch_train_ari]
 
     return epoch_loss, evals
@@ -48,7 +47,7 @@ def evaluate_network(model, device, graph):
     loss = model.loss(adj_rec, adj_orig)
 
     epoch_test_loss = loss.detach().item()
-    epoch_test_acc, epoch_test_f1, epoch_test_nmi, epoch_test_ari = evaluation(labels, y_pred.cpu())
+    epoch_test_acc, epoch_test_f1, epoch_test_nmi, epoch_test_ari = evaluation(labels.cpu().detach().numpy(), y_pred)
     evals = [epoch_test_acc, epoch_test_f1, epoch_test_nmi, epoch_test_ari]
 
     return epoch_test_loss, evals
