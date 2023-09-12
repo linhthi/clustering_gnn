@@ -8,10 +8,10 @@ import json, argparse
 import pickle
 
 import torch
-import torchc.nn as nn
+import torch.nn as nn
 import torch.nn.functional as F
 
-import optim as optim
+import torch.optim as optim
 from torch.utils.data import DataLoader
 
 from tensorboardX import SummaryWriter
@@ -25,7 +25,7 @@ class DotDict(dict):
 """
     IMPORT CUSTOM MODULES/METHODS
 """
-from data.data import LoadData
+from data.data import load_data
 from nets.load_net import cluster_model
 
 """
@@ -34,7 +34,7 @@ from nets.load_net import cluster_model
 
 def gpu_setup(use_gpu, gpu_id):
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-    os.environ["CUDA_VISIBLE_DEVICES"] = gpu_id
+    os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
 
     if torch.cuda.is_available() and use_gpu:
         print('cuda available with GPU:', torch.cuda.get_device_name(0))
@@ -52,7 +52,7 @@ def view_model_param(net_params):
     model = cluster_model(net_params['model'], net_params)
     total_param = 0
     print("MODEL DETAILS:\n")
-    print(model.parameter())
+    print(model.parameters())
     for param in model.parameters():
         total_param += np.prod(list(param.data.size()))
     
@@ -126,9 +126,9 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
             for epoch in t:
                 start_ = time.time()
 
-                epoch_train_loss, epoch_train_evals = train_epoch(model, optimizer, device, dataset, train_mask)
-                epoch_val_loss, epoch_val_evals = evaluate_network(model, device, dataset, val_mask)
-                _, epoch_test_evals = evaluate_network(model, device, dataset, test_mask) 
+                epoch_train_loss, epoch_train_evals = train_epoch(model, optimizer, device, dataset.graph)
+                epoch_val_loss, epoch_val_evals = evaluate_network(model, device, dataset.graph)
+                _, epoch_test_evals = evaluate_network(model, device, dataset.graph) 
 
                 epoch_train_losses.append(epoch_train_loss)
                 epoch_val_losses.append(epoch_val_loss)
@@ -239,11 +239,11 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', help='Configuration file name, json file', required=True)
     parser.add_argument('--gpu_id', help='gpu id', default='0')
-    parser.add_argument('model', help='model name')
-    parser.add_argument('dataset', help='dataset name')
-    parser.add_argument('out_dir', help='output directory name')
-    parser.add_argument('seed', help='random seed', type=int)
-    parser.add_argument('epochs', help='number of epochs', type=int)
+    parser.add_argument('--model', help='model name')
+    parser.add_argument('--dataset', help='dataset name')
+    parser.add_argument('--out_dir', help='output directory name')
+    parser.add_argument('--seed', help='random seed')
+    parser.add_argument('--epochs', help='number of epochs')
     parser.add_argument('--batch_size', help="Please give a value for batch_size")
     parser.add_argument('--init_lr', help="Please give a value for init_lr")
     parser.add_argument('--lr_reduce_factor', help="Please give a value for lr_reduce_factor")
@@ -282,7 +282,7 @@ def main():
         DATASET_NAME = args.dataset
     else:
         DATASET_NAME = config['dataset']
-    dataset = load_data(DATASET_NAME, use_spe=config['use_spe'])
+    dataset = load_data(DATASET_NAME)
     if args.out_dir is not None:
         out_dir = args.out_dir
     else:

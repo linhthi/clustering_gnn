@@ -1,5 +1,6 @@
 import dgl
 import torch
+import time
 
 from dgl.data import CoraGraphDataset, CiteseerGraphDataset, PubmedGraphDataset
 
@@ -18,7 +19,7 @@ class CitationDataset(torch.utils.data.Dataset):
         elif name == 'pubmed':
             dataset = PubmedGraphDataset()
         self.graph = dataset[0]
-        self.num_Class = dataset.num_classes
+        self.num_classes = dataset.num_classes
         self.labels = self.graph.ndata['label']
         self.train_mask = self.graph.ndata['train_mask']
         self.val_mask = self.graph.ndata['val_mask']

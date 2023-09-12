@@ -1,0 +1,40 @@
+{
+    "gpu": {
+        "use": false,
+        "id": 0
+    },
+
+    "model": "SPE",
+    "dataset": "cora",
+
+    "out_dir": "out/citation/cora/full/1e-3",
+
+    "params": {
+        "seed": 42,
+        "epochs": 500,
+        "batch_size": 256,
+        "init_lr": 0.005,
+        "lr_reduce_factor": 0.5,
+        "lr_schedule_patience": 60,
+        "min_lr": 1e-4,
+        "weight_decay": 5e-4,
+        "print_epoch_interval": 1,
+        "max_time": 24
+    },
+
+    "net_params": {
+        "model": "gae",
+        "activation": "relu",
+
+        "n_layers": 3,
+        "hidden_dim": 32,
+        "out_dim": 32,
+
+        "residual": true,
+        "readout": "mean",
+        "in_feat_dropout": 0.6,
+        "dropout": 0.6,
+        "layer_norm": true,
+        "batch_norm": true
+    }
+}

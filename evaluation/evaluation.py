@@ -19,7 +19,7 @@ def evaluation(y_true, y_pred):
     nmi_score = nmi(y_true, y_pred)
     ari_score = ari(y_true, y_pred)
 
-    y_true = y_true - np.min(y_true)
+    # y_true = y_true - np.min(y_true)
     l1 = list(set(y_true))
     num_Class1 = len(l1)
     l2 = list(set(y_pred))
@@ -47,7 +47,7 @@ def evaluation(y_true, y_pred):
     m = Munkres()
     cost = cost.__neg__().tolist()
     indexes = m.compute(cost)
-    
+
     new_predict = np.zeros(len(y_pred))
     for i, c in enumerate(l1):
         c2 = l2[indexes[i][1]]
