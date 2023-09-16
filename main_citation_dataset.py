@@ -77,6 +77,7 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
     val_mask = g.ndata['val_mask']
 
     net_params['total_param'] = view_model_param(net_params)
+    debug = net_params['debug']
 
     root_log_dir, root_ckpt_dir, write_file_name, write_config_file = dirs
     device = net_params['device']
@@ -145,45 +146,46 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
                 epoch_val_aris.append(epoch_val_evals[3])
                 epoch_test_aris.append(epoch_test_evals[3])
 
-                writer.add_scalar('train/_loss', epoch_train_loss, epoch)
-                writer.add_scalar('val/_loss', epoch_val_loss, epoch)
-                writer.add_scalar('train/_acc', epoch_train_evals[0], epoch)
-                writer.add_scalar('val/_acc', epoch_val_evals[0], epoch)
-                writer.add_scalar('test/_acc', epoch_test_evals[0], epoch)
-                writer.add_scalar('train/_f1', epoch_train_evals[1], epoch)
-                writer.add_scalar('val/_f1', epoch_val_evals[1], epoch)
-                writer.add_scalar('test/_f1', epoch_test_evals[1], epoch)
-                writer.add_scalar('train/_nmi', epoch_train_evals[2], epoch)
-                writer.add_scalar('val/_nmi', epoch_val_evals[2], epoch)
-                writer.add_scalar('test/_nmi', epoch_test_evals[2], epoch)
-                writer.add_scalar('train/_ari', epoch_train_evals[3], epoch)
-                writer.add_scalar('val/_ari', epoch_val_evals[3], epoch)
-                writer.add_scalar('test/_ari', epoch_test_evals[3], epoch)
-                writer.add_scalar('learning_rate', optimizer.param_groups[0]['lr'], epoch)
+                if not debug:
+                    writer.add_scalar('train/_loss', epoch_train_loss, epoch)
+                    writer.add_scalar('val/_loss', epoch_val_loss, epoch)
+                    writer.add_scalar('train/_acc', epoch_train_evals[0], epoch)
+                    writer.add_scalar('val/_acc', epoch_val_evals[0], epoch)
+                    writer.add_scalar('test/_acc', epoch_test_evals[0], epoch)
+                    writer.add_scalar('train/_f1', epoch_train_evals[1], epoch)
+                    writer.add_scalar('val/_f1', epoch_val_evals[1], epoch)
+                    writer.add_scalar('test/_f1', epoch_test_evals[1], epoch)
+                    writer.add_scalar('train/_nmi', epoch_train_evals[2], epoch)
+                    writer.add_scalar('val/_nmi', epoch_val_evals[2], epoch)
+                    writer.add_scalar('test/_nmi', epoch_test_evals[2], epoch)
+                    writer.add_scalar('train/_ari', epoch_train_evals[3], epoch)
+                    writer.add_scalar('val/_ari', epoch_val_evals[3], epoch)
+                    writer.add_scalar('test/_ari', epoch_test_evals[3], epoch)
+                    writer.add_scalar('learning_rate', optimizer.param_groups[0]['lr'], epoch)
 
-                t.set_postfix(time=time.time()-start_, lr=optimizer.param_groups[0]['lr'],
-                                train_loss=epoch_train_loss, val_loss=epoch_val_loss,
-                                train_acc=epoch_train_evals[0], val_acc=epoch_val_evals[0],
-                                test_acc=epoch_test_evals[0], train_f1=epoch_train_evals[1],
-                                val_f1=epoch_val_evals[1], test_f1=epoch_test_evals[1],
-                                train_nmi=epoch_train_evals[2], val_nmi=epoch_val_evals[2],
-                                test_nmi=epoch_test_evals[2], train_ari=epoch_train_evals[3],
-                                val_ari=epoch_val_evals[3], test_ari=epoch_test_evals[3])
-                
-                per_epoch_time.append(time.time()-start_)
+                    t.set_postfix(time=time.time()-start_, lr=optimizer.param_groups[0]['lr'],
+                                    train_loss=epoch_train_loss, val_loss=epoch_val_loss,
+                                    train_acc=epoch_train_evals[0], val_acc=epoch_val_evals[0],
+                                    test_acc=epoch_test_evals[0], train_f1=epoch_train_evals[1],
+                                    val_f1=epoch_val_evals[1], test_f1=epoch_test_evals[1],
+                                    train_nmi=epoch_train_evals[2], val_nmi=epoch_val_evals[2],
+                                    test_nmi=epoch_test_evals[2], train_ari=epoch_train_evals[3],
+                                    val_ari=epoch_val_evals[3], test_ari=epoch_test_evals[3])
+                    
+                    per_epoch_time.append(time.time()-start_)
 
-                # Saving checkpoint
-                ckpt_dir = os.path.join(root_ckpt_dir, "RUN_")
-                if not os.path.exists(ckpt_dir):
-                    os.makedirs(ckpt_dir)
-                torch.save(model.state_dict(), '{}.pkl'.format(ckpt_dir + "/epoch_" + str(epoch)))
+                    # Saving checkpoint
+                    ckpt_dir = os.path.join(root_ckpt_dir, "RUN_")
+                    if not os.path.exists(ckpt_dir):
+                        os.makedirs(ckpt_dir)
+                    torch.save(model.state_dict(), '{}.pkl'.format(ckpt_dir + "/epoch_" + str(epoch)))
 
-                files = glob.glob(ckpt_dir + '/*.pkl')
-                for file in files:
-                    epoch_nb = file.split('_')[-1]
-                    epoch_nb = int(epoch_nb.split('.')[0])
-                    if epoch_nb < epoch-1:
-                        os.remove(file)
+                    files = glob.glob(ckpt_dir + '/*.pkl')
+                    for file in files:
+                        epoch_nb = file.split('_')[-1]
+                        epoch_nb = int(epoch_nb.split('.')[0])
+                        if epoch_nb < epoch-1:
+                            os.remove(file)
                 
                 scheduler.step(epoch_val_loss)
 

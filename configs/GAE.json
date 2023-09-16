@@ -23,6 +23,7 @@
     },
 
     "net_params": {
+        "debug": true,
         "model": "gae",
         "activation": "relu",
 
