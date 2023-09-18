@@ -27,6 +27,7 @@ class GAE(nn.Module):
         self.dropout = dropout
         self.activation = activation
         self.device = device
+        self.criteration = MSELoss()
         
         self.encoder = enc.GCN(in_dim, hidden_dim, n_clusters, n_layers, activation, dropout)
         self.decoder = dec.InnerProductDecoder(activation)
@@ -39,5 +40,5 @@ class GAE(nn.Module):
         return adj_rec, y_pred, center
 
     def loss(self, adj_rec, adj_orig):
-        loss = MSELoss(adj_rec, adj_orig)
+        loss = self.criteration(adj_rec, adj_orig)
         return loss
