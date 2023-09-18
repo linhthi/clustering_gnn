@@ -2,6 +2,7 @@ import torch.nn as nn
 import layers.encoder as enc
 import layers.decoder as dec
 from torch.nn.functional import binary_cross_entropy_with_logits as BCELoss
+from torch.nn.modules.loss import MSELoss
 import torch
 from layers.clustering import k_means
 
@@ -38,5 +39,5 @@ class GAE(nn.Module):
         return adj_rec, y_pred, center
 
     def loss(self, adj_rec, adj_orig):
-        loss = BCELoss(adj_rec, adj_orig)
+        loss = MSELoss(adj_rec, adj_orig)
         return loss

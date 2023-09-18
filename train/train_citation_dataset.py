@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import math
 import dgl.function as fn
-from  evaluation.evaluation import evaluation
+from  evaluation.evaluation import evaluation, compute_loss_para
 
 def train_epoch(model, optimizer, device, graph):
     model.train()
@@ -19,8 +19,12 @@ def train_epoch(model, optimizer, device, graph):
     optimizer.zero_grad()
     adj_rec, y_pred, center = model.forward(graph)
     adj_orig = graph.adjacency_matrix().to_dense().to(device)
-    pos_weight = ((adj_orig.shape[0] * adj_orig.shape[0]) - adj_orig.sum()) / adj_orig.sum()
-    loss = model.loss(adj_rec, adj_orig)
+    
+    weight_tensor, norm = compute_loss_para(adj_orig)
+    weight_tensor = weight_tensor.to(device)
+
+    loss = norm * F.binary_cross_entropy(adj_rec.view(-1), adj_orig.view(-1), weight=weight_tensor)
+    
     loss.backward()
     optimizer.step()
     epoch_loss = loss.detach().item()
@@ -43,8 +47,10 @@ def evaluate_network(model, device, graph):
 
     adj_rec, y_pred, center = model.forward(graph)
     adj_orig = graph.adjacency_matrix().to_dense().to(device)
-    pos_weight = ((adj_orig.shape[0] * adj_orig.shape[0]) - adj_orig.sum()) / adj_orig.sum()
-    loss = model.loss(adj_rec, adj_orig)
+    weight_tensor, norm = compute_loss_para(adj_orig)
+    weight_tensor = weight_tensor.to(device)
+
+    loss = norm * F.binary_cross_entropy(adj_rec.view(-1), adj_orig.view(-1), weight=weight_tensor)
 
     epoch_test_loss = loss.detach().item()
     epoch_test_acc, epoch_test_f1, epoch_test_nmi, epoch_test_ari = evaluation(labels.cpu().detach().numpy(), y_pred)

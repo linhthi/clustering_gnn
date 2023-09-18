@@ -57,3 +57,12 @@ def evaluation(y_true, y_pred):
     f1 = f1_score(y_true, new_predict, average='macro')
 
     return acc, f1, nmi_score, ari_score
+
+# https://github.com/JuliaSun623/VGAE_dgl/blob/main/train.py#L38
+def compute_loss_para(adj):
+    pos_weight = ((adj.shape[0] * adj.shape[0]) - adj.sum()) / adj.sum()
+    norm = adj.shape[0] * adj.shape[0] / float((adj.shape[0] * adj.shape[0] - adj.sum()) * 2)
+    weight_mask = adj.view(-1) == 1
+    weight_tensor = torch.ones(weight_mask.size(0))
+    weight_tensor[weight_mask] = pos_weight
+    return weight_tensor, norm
