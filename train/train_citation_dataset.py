@@ -24,7 +24,8 @@ def train_epoch(model, optimizer, device, graph):
     weight_tensor, norm = compute_loss_para(adj_orig)
     weight_tensor = weight_tensor.to(device)
 
-    loss = norm * F.binary_cross_entropy(adj_rec.view(-1), adj_orig.view(-1), weight=weight_tensor)
+    # loss = norm * F.binary_cross_entropy(adj_rec.view(-1), adj_orig.view(-1), weight=weight_tensor)
+    loss = model.loss(adj_rec, adj_orig)
 
     loss.backward()
     optimizer.step()
@@ -51,7 +52,8 @@ def evaluate_network(model, device, graph):
     weight_tensor, norm = compute_loss_para(adj_orig)
     weight_tensor = weight_tensor.to(device)
 
-    loss = norm * F.binary_cross_entropy(adj_rec.view(-1), adj_orig.view(-1), weight=weight_tensor)
+    # loss = norm * F.binary_cross_entropy(adj_rec.view(-1), adj_orig.view(-1), weight=weight_tensor)
+    loss = model.loss(adj_rec, adj_orig)
 
     epoch_test_loss = loss
     epoch_test_acc, epoch_test_f1, epoch_test_nmi, epoch_test_ari = evaluation(labels.cpu().detach().numpy(), y_pred)

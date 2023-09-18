@@ -240,7 +240,7 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', help='Configuration file name, json file', required=True)
-    parser.add_argument('--gpu_id', help='gpu id', default='0')
+    parser.add_argument('--gpu_id', help='gpu id', default=None)
     parser.add_argument('--model', help='model name')
     parser.add_argument('--dataset', help='dataset name')
     parser.add_argument('--out_dir', help='output directory name')
