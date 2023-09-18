@@ -3,6 +3,7 @@ from munkres import Munkres
 from sklearn.metrics import accuracy_score, f1_score
 from sklearn.metrics.cluster import normalized_mutual_info_score as nmi
 from sklearn.metrics.cluster import adjusted_rand_score as ari
+import torch
 
 def evaluation(y_true, y_pred):
     """
